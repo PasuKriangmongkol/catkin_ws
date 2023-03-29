@@ -9,7 +9,7 @@ import speech_recognition as sr
 
 class IDLE(smach.state) :
     def __init__(self) -> None:
-        super().__init__(self,outcomes=['success', 'fail']):
+        super().__init__(self,outcomes=['success', 'fail'])
 
     def execute(self, ud):
         rospy.loginfo("Starting robot state")
@@ -28,6 +28,8 @@ class GoToGuest(smach.State):
     def execute(self, ud):
         rospy.loginfo("Executing state GoToGuest")
         # Navigation to GUEST code #
+        #------------------------
+
         engine = pyttsx3.init()
         engine.say("What would you like to drink")
         engine.runAndWait()
@@ -73,6 +75,8 @@ class GoToHost(smach.State):
     def execute(self, ud,MyText):
         rospy.loginfo("Executing state GoToHost")
         # Navigation to GUEST code #
+        #---------------------------
+        
         RobotText = "He want to drink" + MyText
         engine = pyttsx3.init()
         engine.say("RobotText")
