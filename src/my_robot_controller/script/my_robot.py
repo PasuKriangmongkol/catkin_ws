@@ -27,7 +27,7 @@ class GoToGuest(smach.State):
         
     def execute(self, ud):
         rospy.loginfo("Executing state GoToGuest")
-        # Navigation code #
+        # Navigation to GUEST code #
         engine = pyttsx3.init()
         engine.say("What would you like to drink")
         engine.runAndWait()
@@ -53,7 +53,7 @@ class GoToGuest(smach.State):
 
                     Mytext = str(MyText)
 
-                    return 'success'
+                    return 'success' , MyText
                     
 
             except sr.RequestError as e:
@@ -70,9 +70,13 @@ class GoToHost(smach.State):
     def __init__(self, outcomes=['success', 'fail']):
         super().__init__(outcomes)
     
-    def execute(self, ud):
+    def execute(self, ud,MyText):
         rospy.loginfo("Executing state GoToHost")
-
+        # Navigation to GUEST code #
+        RobotText = "He want to drink" + MyText
+        engine = pyttsx3.init()
+        engine.say("RobotText")
+        engine.runAndWait()
         return 'success' 
 
 class RobotState(object):
