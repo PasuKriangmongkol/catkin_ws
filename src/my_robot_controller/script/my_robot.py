@@ -8,7 +8,7 @@ import speech_recognition as sr
 
 class IDE(smach.State):
     def __init__(self):
-        super().__init__(outcomes=['success', 'fail'])
+        smach.State..__init__(outcomes=['success', 'fail'])
 
     def execute(self, ud):
         print("Starting robot state")
@@ -21,7 +21,7 @@ class IDE(smach.State):
 
 class GoToGuest(smach.State):
     def __init__(self):
-        super().__init__(outcomes=['success', 'fail'])
+        smach.State..__init__(outcomes=['success', 'fail'])
 
     def execute(self, ud):
         rospy.loginfo("Executing state GoToGuest")
@@ -62,7 +62,7 @@ class GoToGuest(smach.State):
 
 class GoToHost(smach.State):
     def __init__(self):
-        super().__init__(outcomes=['success', 'fail'])
+        smach.State..__init__(outcomes=['success', 'fail'])
 
     def execute(self, ud):
         rospy.loginfo("Executing state GoToHost")
@@ -79,21 +79,20 @@ class GoToHost(smach.State):
 
         return 'success'
 
-class RobotState(object):
-    def __init__(self):
-        rospy.init_node('robot_state', anonymous=True)
-        sm = smach.StateMachine(outcomes=['---finish---'])
+def RobotState():
+    rospy.init_node('robot_state', anonymous=True)
+    sm = smach.StateMachine(outcomes=['---finish---'])
 
-        with sm:
-            smach.StateMachine.add('IDE', IDE(),
-                                transitions={'success': 'GoToGuest', 'fail': 'IDE'})
-            smach.StateMachine.add('GoToGuest', GoToGuest(),
-                                transitions={'success': 'GoToHost', 'fail': 'GoToGuest'},
-                                remapping={'GoToGuest_Output': 'MyText'})
-            smach.StateMachine.add('GoToHost', GoToHost(),
-                                transitions={'success': '---finish---', 'fail': False})
+    with sm:
+        smach.StateMachine.add('IDE', IDE(),
+                            transitions={'success': 'GoToGuest', 'fail': 'IDE'})
+        smach.StateMachine.add('GoToGuest', GoToGuest(),
+                            transitions={'success': 'GoToHost', 'fail': 'GoToGuest'},
+                            remapping={'GoToGuest_Output': 'MyText'})
+        smach.StateMachine.add('GoToHost', GoToHost(),
+                            transitions={'success': '---finish---', 'fail': False})
 
-        outcome = sm.execute()
+    outcome = sm.execute()
 
 if __name__ == "_main_":
     print("Starting robot")
