@@ -1,2 +1,2 @@
-
+my_robot_controller:your_smach
 -DCATKIN_DEVEL_PREFIX=/home/pasu/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/pasu/catkin_ws/install -G Unix Makefiles
