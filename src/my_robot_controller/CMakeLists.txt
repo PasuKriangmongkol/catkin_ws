@@ -10,6 +10,8 @@ project(my_robot_controller)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   turtlesim
+  std_msgs
+  smach
 )
 
 ## System dependencies are found with CMake's conventions
