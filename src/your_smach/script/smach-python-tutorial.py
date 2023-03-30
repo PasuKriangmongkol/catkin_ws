@@ -8,9 +8,9 @@ import speech_recognition as sr
 
 class IDE(smach.State):
     def __init__(self):
-        smach.State.__init__(outcomes=['success', 'fail'])
+        smach.State.__init__(self, outcomes=['success', 'fail'])
 
-    def execute(self, ud):
+    def execute(self, userdata):
         print("Starting robot state")
         rospy.loginfo("Starting robot state")
         S = str(input("Press s to start: "))
@@ -21,9 +21,9 @@ class IDE(smach.State):
 
 class GoToGuest(smach.State):
     def __init__(self):
-        smach.State.__init__(outcomes=['success', 'fail'])
+        smach.State.__init__(self, outcomes=['success', 'fail'])
 
-    def execute(self, ud):
+    def execute(self, userdata):
         rospy.loginfo("Executing state GoToGuest")
         # Navigation to GUEST code #
         #------------------------
@@ -62,14 +62,14 @@ class GoToGuest(smach.State):
 
 class GoToHost(smach.State):
     def __init__(self):
-        smach.State.__init__(outcomes=['success', 'fail'])
+        smach.State.__init__(self, outcomes=['success', 'fail'])
 
-    def execute(self, ud):
+    def execute(self,userdata):
         rospy.loginfo("Executing state GoToHost")
         # Navigation to HOST code #
         #-------------------------
 
-        MyText = ud.GoToGuest_Output
+        MyText = userdata.GoToGuest_Output
         RobotText = "He wants to drink " + MyText
         print(RobotText)
 
@@ -79,7 +79,7 @@ class GoToHost(smach.State):
 
         return 'success'
 
-def RobotState():
+def main():
     rospy.init_node('robot_state', anonymous=True)
     sm = smach.StateMachine(outcomes=['---finish---'])
 
@@ -94,6 +94,6 @@ def RobotState():
 
     outcome = sm.execute()
 
-if __name__ == "_main_":
-    print("Starting robot")
-    RobotState()
+if __name__ == "__main__":
+
+    main()
