@@ -2,8 +2,47 @@ import rospy
 import smach
 import smach_ros
 from std_srvs.srv import *
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+from tf.transformations import quaternion_from_euler
+import actionlib
+from actionlib_msgs.msg import *
+import csv
+from geometry_msgs.msg import Pose, Point, Quaternion
 import pyttsx3
 import speech_recognition as sr
+
+class RobotNavigation():
+    def __init__(self):
+        rospy.on_shutdown(self.shutdown)
+        self.move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
+        rospy.loginfo("wait for the action server to come up")
+        self.move_base.wait_for_server(rospy.Duration(5))
+
+    def go_to_location(self,x, y ,theta):   
+        x,y,theta = float(x), float(y), float(theta)
+        q = quaternion_from_euler(0,0,theta) 
+        goal = MoveBaseGoal()        
+        goal.target_pose.header.frame_id = 'map'        
+        goal.target_pose.header.stamp = rospy.get_rostime()        
+        goal.target_pose.pose = Pose(Point(x, y, 0.000), Quaternion(q[0], q[1], q[2], q[3]))
+        self.move_base.send_goal(goal)        
+        print("Waiting for result")
+        success = self.move_base.wait_for_result(rospy.Duration(60))
+        print("Return result: ",success)
+        state = self.move_base.get_state()        
+        result = False        
+        if success and state == GoalStatus.SUCCEEDED:            
+            # We made it!            
+            result = True        
+        else:            
+            self.move_base.cancel_goal()        
+            self.goal_sent = False        
+        return result
+        
+    def shutdown(self):
+        stop_goal = MoveBaseGoal()
+        self.move_base.send_goal(stop_goal)
+        rospy.loginfo("Stop")
 
 class IDE(smach.State):
     def __init__(self):
@@ -24,9 +63,11 @@ class GoToGuest(smach.State):
 
     def execute(self, ud):
         rospy.loginfo("Executing state GoToGuest")
-        # Navigation to GUEST code #
-        #------------------------
-
+        try:
+            go_to_guest = RobotNavigation()
+            go_to_guest.go_to_location(0,2,0)
+        except rospy.ROSInterruptException:
+            rospy.loginfo("Exception thrown")
         engine = pyttsx3.init()
         engine.say("What would you like to drink?")
         engine.runAndWait()
@@ -60,14 +101,19 @@ class GoToGuest(smach.State):
                 print("Unknown error occurred")
                 return 'fail'
 
+
+
 class GoToHost(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes=['success', 'fail'], input_keys=['speech_output'])
 
     def execute(self, ud):
         rospy.loginfo("Executing state GoToHost")
-        # Navigation to HOST code #
-        #-------------------------
+        try:
+            go_to_guest = RobotNavigation()
+            go_to_guest.go_to_location(0,2,3.94)
+        except rospy.ROSInterruptException:
+            rospy.loginfo("Exception thrown")
 
         MyText = ud.speech_output
         RobotText = "He wants to drink " + MyText
@@ -78,6 +124,7 @@ class GoToHost(smach.State):
         engine.runAndWait()
 
         return 'success'
+
 
 def RobotState():
     rospy.init_node('robot_state', anonymous=True)
